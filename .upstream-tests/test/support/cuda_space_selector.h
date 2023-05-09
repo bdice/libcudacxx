@@ -14,12 +14,6 @@
 #ifndef __CUDA_SPACE_SELECTOR_H
 #define __CUDA_SPACE_SELECTOR_H
 
-#if defined(__CUDACC__) && !defined(__NVCOMPILER)
-#define __exec_check_disable__ #pragma nv_exec_check_disable
-#else
-#define __exec_check_disable__
-#endif
-
 #ifdef __CUDACC_RTC__
 #define LAMBDA [=]
 #else
@@ -152,7 +146,7 @@ public:
     static const constexpr cuda::std::size_t shared_offset = Provider<T, SharedOffset>::shared_offset;
 
 #ifndef __CUDACC_RTC__
-    __exec_check_disable__
+    _LIBCUDACXX_DISABLE_EXEC_CHECK
 #endif
     template<typename ...Ts>
     __host__ __device__
@@ -171,7 +165,7 @@ public:
     }
 
 #ifndef __CUDACC_RTC__
-    __exec_check_disable__
+    _LIBCUDACXX_DISABLE_EXEC_CHECK
 #endif
     __host__ __device__
     ~memory_selector() {
