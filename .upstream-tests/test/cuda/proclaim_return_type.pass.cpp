@@ -65,29 +65,28 @@ int main(int argc, char ** argv)
   int v = 42;
   int* vp = &v;
 
+  test_proclaim_return_type<int>(hd_callable{}, 42);
+  test_proclaim_return_type<double>([]   { return 42.0; }, 42.0);
+  test_proclaim_return_type<int>   ([]   (const int v) { return v * 2; }, 42, 21);
+  test_proclaim_return_type<int&>  ([vp] () -> int& { return *vp; }, v);
+
   NV_IF_ELSE_TARGET(NV_IS_DEVICE, (
-    test_proclaim_return_type<int>(hd_callable{}, 42);
     test_proclaim_return_type<int>(d_callable{}, 42);
   ),(
-    test_proclaim_return_type<double>([]   { return 42.0; }, 42.0);
-    test_proclaim_return_type<int>   ([]   (const int v) { return v * 2; }, 42, 21);
-    test_proclaim_return_type<int&>  ([vp] () -> int& { return *vp; }, v);
-
-    test_proclaim_return_type<int>(hd_callable{}, 42);
+    test_proclaim_return_type<int>(h_callable{}, 42);
   ))
+
 
   // execution space annotations on lambda require --extended-lambda flag with nvrtc
 #if !defined(TEST_COMPILER_NVRTC)
-  NV_IF_ELSE_TARGET(NV_IS_DEVICE, (
+  NV_IF_TARGET(NV_IS_DEVICE, (
     test_proclaim_return_type<double>([]   __device__ { return 42.0; }, 42.0);
     test_proclaim_return_type<int>   ([]   __device__ (const int v) { return v * 2; }, 42, 21);
     test_proclaim_return_type<int&>  ([vp] __device__ () -> int& { return *vp; }, v);
 
-    test_proclaim_return_type<double>([]   __host__ __device__ { return 42.0; }, 42.0);
-    test_proclaim_return_type<int>   ([]   __host__ __device__ (const int v) { return v * 2; }, 42, 21);
+    test_proclaim_return_type<double>([] __host__ __device__ { return 42.0; }, 42.0);
+    test_proclaim_return_type<int>   ([] __host__ __device__ (const int v) { return v * 2; }, 42, 21);
     test_proclaim_return_type<int&>  ([vp] __host__ __device__ () -> int& { return *vp; }, v);
-  ),(
-    test_proclaim_return_type<int>(h_callable{}, 42);
   ))
 
   // Ensure that we can always declare functions even on host
